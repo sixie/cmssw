@@ -481,27 +481,27 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
             trigger = true;
             int ghost_cleared[2] = {0, 0};
             ghostCancellationLogicOneWire(i_wire, ghost_cleared);
-     
+
             int bx = (use_corrected_bx) ? first_bx_corrected[i_wire]:first_bx[i_wire];
-            if (bx >= CSCConstants::MAX_ALCT_TBINS)  
+            if (bx >= CSCConstants::MAX_ALCT_TBINS)
                edm::LogError("CSCAnodeLCTProcessor") <<" bx of valid trigger : "<< bx <<" > max allowed value "<<  CSCConstants::MAX_ALCT_TBINS;
 
             //acceloration mode
             if (quality[i_wire][0] > 0 and bx <  CSCConstants::MAX_ALCT_TBINS){
                int valid = (ghost_cleared[0] == 0) ? 1 : 0;//cancelled, valid=0, otherwise it is 1
                lct_list.push_back(CSCALCTDigi(valid, quality[i_wire][0], 1, 0, i_wire, bx));
-               if (infoV > 1)   LogTrace("CSCAnodeLCTProcessor") 
-                                  <<"Add one ALCT to list "<< lct_list.back(); 
+               if (infoV > 1)   LogTrace("CSCAnodeLCTProcessor")
+                                  <<"Add one ALCT to list "<< lct_list.back();
                }
 
             //collision mode
             if (quality[i_wire][1] > 0 and bx <  CSCConstants::MAX_ALCT_TBINS){
                int valid = (ghost_cleared[1] == 0) ? 1 : 0;//cancelled, valid=0, otherwise it is 1
                lct_list.push_back(CSCALCTDigi(valid, quality[i_wire][1], 0, quality[i_wire][2], i_wire, bx));
-               if (infoV > 1)   LogTrace("CSCAnodeLCTProcessor") 
-                                  <<"Add one ALCT to list "<< lct_list.back(); 
+               if (infoV > 1)   LogTrace("CSCAnodeLCTProcessor")
+                                  <<"Add one ALCT to list "<< lct_list.back();
             }
-                  
+
             //break;
             // Assume that the earliest time when another pre-trigger can
             // occur in case pattern detection failed is bx_pretrigger+4:
@@ -517,7 +517,7 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
           break;
         }
       }// end of while
-   
+
     }
   }
 
@@ -696,8 +696,9 @@ bool CSCAnodeLCTProcessor::pulseExtension(const std::vector<int> wire[CSCConstan
   return chamber_empty;
 }
 
-bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx)
-{
+bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
+  int nPreTriggers = 0;
+
   unsigned int layers_hit;
   bool hit_layer[CSCConstants::NUM_LAYERS];
   int this_layer, this_wire;
@@ -744,6 +745,10 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx)
                     << " pattern: " << i_pattern
                     << " bx_time: " << bx_time;
                 }
+                // make a new pre-trigger
+                nPreTriggers++;
+                thePreTriggerDigis.emplace_back(
+                    CSCALCTPreTriggerDigi(1, layers_hit - 3, 0, 0, this_wire, bx_time, nPreTriggers));
                 return true;
               }
             }
@@ -864,7 +869,7 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire)
         // Only one collision pattern (of the best quality) is reported
         if (static_cast<int>(temp_quality) > quality[key_wire][1]) {
           quality[key_wire][1] = temp_quality;//real quality
-          quality[key_wire][2] = i_pattern-1; // pattern, left or right 
+          quality[key_wire][2] = i_pattern-1; // pattern, left or right
         }
       }
       if (infoV > 1) {
@@ -974,7 +979,7 @@ void CSCAnodeLCTProcessor::ghostCancellationLogic()
 
 
 void  CSCAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire, int *ghost_cleared){
-    
+
 
   //int ghost_cleared[2];
 
@@ -992,9 +997,9 @@ void  CSCAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire, in
         for (auto& p : lct_list){
           //ignore whether ALCT is valid or not in ghost cancellation
           //if wiregroup 10, 11, 12 all have trigger and same quality, only wiregroup 10 can keep the trigger
-          //this met with firmware 
+          //this met with firmware
           if (not (p.getKeyWG() == key_wire -1 and 1-p.getAccelerator() == i_pattern)) continue;
-            
+
           bool ghost_cleared_prev = false;
           int qual_prev = p.getQuality();
           int first_bx_prev = p.getBX();
@@ -1032,8 +1037,8 @@ void  CSCAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire, in
             << " pattern ghost cancelled on key_wire " << key_wire <<" q="<<qual_this
             << "  by wire " << key_wire-1<<" q="<<qual_prev;
           //cancellation for key_wire is done when ALCT is created and pushed to lct_list
-        } 
-     
+        }
+
         if (ghost_cleared_prev) {
           if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
             << ((i_pattern == 0) ? "Accelerator" : "Collision")
