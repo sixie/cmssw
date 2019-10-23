@@ -3,12 +3,12 @@
 # Slava Valuev; October, 2006.
 
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-process = cms.Process("CSCTPEmulator", Run2_2018)
+process = cms.Process("CSCTPEmulator", eras.Run3)
 
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(10000)
+  input = cms.untracked.int32(10)
 )
 
 # Hack to add "test" directory to the python path.
@@ -18,10 +18,14 @@ sys.path.insert(0, os.path.join(os.environ['CMSSW_BASE'],
 
 process.source = cms.Source("PoolSource",
      fileNames = cms.untracked.vstring(
-         'file:lcts.root'
+#         '/store/user/dildick/LLPStudiesWithSergoEtAl20191015/ppTohToSS1SS2_SS1Tobb_SS2Tobb_ggh_withISR_DR_step1_1.root'
+         'file:ppTohToSS1SS2_SS1Tobb_SS2Tobb_ggh_withISR_DR_step1_1.root'
      )
 )
 
+process.source.inputCommands = cms.untracked.vstring("drop FEDRawDataCollection_rawDataCollector__HLT")
+
+'''
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring("debug"),
     debug = cms.untracked.PSet(
@@ -34,13 +38,15 @@ process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring("cscTriggerPrimitiveDigis",
         "lctreader")
 )
+'''
 
 # es_source of ideal geometry
 # ===========================
-process.load("Configuration/StandardSequences/GeometryDB_cff")
-
-process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR_R_60_V7::All'
+#process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
+process.load("Configuration.Geometry.GeometryExtended2019Reco_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 # magnetic field (do I need it?)
 # ==============================
@@ -57,16 +63,21 @@ process.muonCSCDigis.InputObjects = "rawDataCollector"
 # CSC Trigger Primitives emulator
 # ===============================
 process.load("L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi")
-process.cscTriggerPrimitiveDigis.alctParam07.verbosity = 2
-process.cscTriggerPrimitiveDigis.clctParam07.verbosity = 2
-process.cscTriggerPrimitiveDigis.tmbParam.verbosity = 2
-process.cscTriggerPrimitiveDigis.CSCComparatorDigiProducer = "muonCSCDigis:MuonCSCComparatorDigi"
-process.cscTriggerPrimitiveDigis.CSCWireDigiProducer = "muonCSCDigis:MuonCSCWireDigi"
+#process.cscTriggerPrimitiveDigis.alctParam07.verbosity = 2
+#process.cscTriggerPrimitiveDigis.clctParam07.verbosity = 2
+#process.cscTriggerPrimitiveDigis.tmbParam.verbosity = 2
+#process.cscTriggerPrimitiveDigis.CSCComparatorDigiProducer = "simMuonCSCDigis:MuonCSCComparatorDigi:HLT"
+#process.cscTriggerPrimitiveDigis.CSCWireDigiProducer = "simMuonCSCDigis:MuonCSCWireDigi:HLT"
 
 # CSC Trigger Primitives reader
 # =============================
 process.load("CSCTriggerPrimitivesReader_cfi")
 process.lctreader.debug = True
+process.lctreader.CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi")
+process.lctreader.CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
+
+#CSCDetIdCSCWireDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCWireDigi_HLT. 612.771 102.83
+#CSCDetIdCSCComparatorDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCComparatorDigi_HLT. 344.143 72.2897
 
 # Output
 # ======
@@ -82,4 +93,9 @@ process.TFileService = cms.Service("TFileService",
 
 # Scheduler path
 # ==============
-process.p = cms.Path(process.muonCSCDigis*process.cscTriggerPrimitiveDigis*process.lctreader)
+process.p = cms.Path(#process.muonCSCDigis*
+    process.cscTriggerPrimitiveDigis
+#    process.lctreader
+    )
+
+process.pp = cms.EndPath(process.output)

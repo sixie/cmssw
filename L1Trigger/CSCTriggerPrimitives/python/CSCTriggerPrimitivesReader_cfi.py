@@ -11,7 +11,7 @@ lctreader = cms.EDAnalyzer("CSCTriggerPrimitivesReader",
     debug = cms.untracked.bool(False),
     # Define which LCTs are present in the input file.  This will determine the
     # workflow of the Reader.
-    dataLctsIn = cms.bool(True),
+                           dataLctsIn = cms.bool(False),
     emulLctsIn = cms.bool(True),
     printps = cms.bool(True),
     # Labels to retrieve LCTs from the event (optional)
