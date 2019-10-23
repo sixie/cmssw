@@ -11,21 +11,12 @@ process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(10)
 )
 
-# Hack to add "test" directory to the python path.
-import sys, os
-sys.path.insert(0, os.path.join(os.environ['CMSSW_BASE'],
-                                'src/L1Trigger/CSCTriggerPrimitives/test'))
-
 process.source = cms.Source("PoolSource",
      fileNames = cms.untracked.vstring(
-#         '/store/user/dildick/LLPStudiesWithSergoEtAl20191015/ppTohToSS1SS2_SS1Tobb_SS2Tobb_ggh_withISR_DR_step1_1.root'
-         'file:ppTohToSS1SS2_SS1Tobb_SS2Tobb_ggh_withISR_DR_step1_1.root'
+         'file:/uscms/home/dildick/nobackup/work/LLPStudiesWithSergoEtAL/CMSSW_10_6_4/src/step2.root'
      )
 )
 
-process.source.inputCommands = cms.untracked.vstring("drop FEDRawDataCollection_rawDataCollector__HLT")
-
-'''
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring("debug"),
     debug = cms.untracked.PSet(
@@ -36,17 +27,15 @@ process.MessageLogger = cms.Service("MessageLogger",
         noLineBreaks = cms.untracked.bool(True)
     ),
     debugModules = cms.untracked.vstring("cscTriggerPrimitiveDigis",
-        "lctreader")
+                                         "lctreader")
 )
-'''
 
 # es_source of ideal geometry
 # ===========================
-#process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
-process.load("Configuration.Geometry.GeometryExtended2019Reco_cff")
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 
 # magnetic field (do I need it?)
 # ==============================
@@ -71,13 +60,10 @@ process.load("L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi")
 
 # CSC Trigger Primitives reader
 # =============================
-process.load("CSCTriggerPrimitivesReader_cfi")
+process.load("L1Trigger.CSCTriggerPrimitives.CSCTriggerPrimitivesReader_cfi")
 process.lctreader.debug = True
 process.lctreader.CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi")
 process.lctreader.CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
-
-#CSCDetIdCSCWireDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCWireDigi_HLT. 612.771 102.83
-#CSCDetIdCSCComparatorDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCComparatorDigi_HLT. 344.143 72.2897
 
 # Output
 # ======
@@ -95,7 +81,7 @@ process.TFileService = cms.Service("TFileService",
 # ==============
 process.p = cms.Path(#process.muonCSCDigis*
     process.cscTriggerPrimitiveDigis
-#    process.lctreader
+#    *process.lctreader
     )
 
 process.pp = cms.EndPath(process.output)
