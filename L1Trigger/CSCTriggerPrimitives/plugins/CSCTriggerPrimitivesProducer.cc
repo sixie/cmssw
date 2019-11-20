@@ -47,6 +47,10 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   gemPadDigiProducer_ = conf.existsAs<edm::InputTag>("GEMPadDigiProducer")?conf.getParameter<edm::InputTag>("GEMPadDigiProducer"):edm::InputTag("");
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
+  writeOutAllCLCTs_ = conf.getParameter<bool>("writeOutAllCLCTs");
+
+  savePreTriggers_ = conf.getParameter<bool>("savePreTriggers");
+
   // check whether you need to run the integrated local triggers
   const edm::ParameterSet commonParam(conf.getParameter<edm::ParameterSet>("commonParam"));
   runME11ILT_ = commonParam.existsAs<bool>("runME11ILT")?commonParam.getParameter<bool>("runME11ILT"):false;
@@ -60,6 +64,10 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   // register what this produces
   produces<CSCALCTDigiCollection>();
   produces<CSCCLCTDigiCollection>();
+  // for experimental simulation studies
+  if (writeOutAllCLCTs_) {
+    produces<CSCCLCTDigiCollection>("ALL");
+  }
   produces<CSCCLCTPreTriggerDigiCollection>();
   produces<CSCCLCTPreTriggerCollection>();
   produces<CSCCorrelatedLCTDigiCollection>();
@@ -136,6 +144,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   // and downstream of MPC.
   std::unique_ptr<CSCALCTDigiCollection> oc_alct(new CSCALCTDigiCollection);
   std::unique_ptr<CSCCLCTDigiCollection> oc_clct(new CSCCLCTDigiCollection);
+  std::unique_ptr<CSCCLCTDigiCollection> oc_clct_all(new CSCCLCTDigiCollection);
   std::unique_ptr<CSCCLCTPreTriggerDigiCollection> oc_clctpretrigger(new CSCCLCTPreTriggerDigiCollection);
   std::unique_ptr<CSCCLCTPreTriggerCollection> oc_pretrig(new CSCCLCTPreTriggerCollection);
   std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);
@@ -160,11 +169,19 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   if (wireDigis.isValid() && compDigis.isValid()) {
     const CSCBadChambers* temp = checkBadChambers_ ? pBadChambers.product() : new CSCBadChambers;
     streamCache(iID)->build(temp,
-                            wireDigis.product(), compDigis.product(),
-                            gemPads, gemPadClusters,
-                            *oc_alct, *oc_clct,
-                            *oc_clctpretrigger, *oc_pretrig,
-                            *oc_lct, *oc_sorted_lct, *oc_gemcopad);
+                            wireDigis.product(),
+                            compDigis.product(),
+                            gemPads,
+                            gemPadClusters,
+                            *oc_alct,
+                            *oc_clct,
+                            *oc_clct_all,
+                            *oc_alctpretrigger,
+                            *oc_clctpretrigger,
+                            *oc_pretrig,
+                            *oc_lct,
+                            *oc_sorted_lct,
+                            *oc_gemcopad);
     if (!checkBadChambers_)
       delete temp;
   }
@@ -172,7 +189,13 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   // Put collections in event.
   ev.put(std::move(oc_alct));
   ev.put(std::move(oc_clct));
-  ev.put(std::move(oc_clctpretrigger));
+  if (writeOutAllCLCTs_){
+    ev.put(std::move(oc_clct_all), "ALL");
+  }
+  if (savePreTriggers_) {
+    ev.put(std::move(oc_alctpretrigger));
+    ev.put(std::move(oc_clctpretrigger));
+  }
   ev.put(std::move(oc_pretrig));
   ev.put(std::move(oc_lct));
   ev.put(std::move(oc_sorted_lct),"MPCSORTED");
