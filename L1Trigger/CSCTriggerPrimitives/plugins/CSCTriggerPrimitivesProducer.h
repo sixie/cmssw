@@ -80,6 +80,10 @@ class CSCTriggerPrimitivesProducer : public edm::global::EDProducer<edm::StreamC
   // only relevant when CSCConstants::MAX_CLCTS_PER_PROCESSOR is > 2
   bool writeOutAllCLCTs_;
 
+  // write out all ALCTs
+  // only relevant when CSCConstants::MAX_ALCTS_PER_PROCESSOR is > 2
+  bool writeOutAllALCTs_;
+
   // Write out pre-triggers
   bool savePreTriggers_;
 
