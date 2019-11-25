@@ -68,10 +68,10 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   produces<CSCCLCTDigiCollection>();
   // for experimental simulation studies
   if (writeOutAllCLCTs_) {
-    produces<CSCCLCTDigiCollection>("ALL");
+    produces<CSCCLCTDigiCollection>("All");
   }
   if (writeOutAllALCTs_) {
-    produces<CSCALCTDigiCollection>("ALL");
+    produces<CSCALCTDigiCollection>("All");
   }
   produces<CSCCLCTPreTriggerDigiCollection>();
   produces<CSCCLCTPreTriggerCollection>();
@@ -196,11 +196,11 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   // Put collections in event.
   ev.put(std::move(oc_alct));
   if (writeOutAllALCTs_){
-    ev.put(std::move(oc_alct_all), "ALL");
+    ev.put(std::move(oc_alct_all), "All");
   }
   ev.put(std::move(oc_clct));
   if (writeOutAllCLCTs_){
-    ev.put(std::move(oc_clct_all), "ALL");
+    ev.put(std::move(oc_clct_all), "All");
   }
   if (savePreTriggers_) {
     ev.put(std::move(oc_alctpretrigger));
