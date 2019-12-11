@@ -46,7 +46,7 @@ class CSCConstants
     MAX_NUM_STRIPS_ME1A_UNGANGED = 48,
   };
 
-  // CSCs have 6 layers. The key (refernce) layer is the third layer
+  // CSCs have 6 layers. The key (reference) layer is the third layer
   enum Layer_Info {
     NUM_LAYERS = 6,
     KEY_CLCT_LAYER = 3,
@@ -65,9 +65,13 @@ class CSCConstants
     // Max number of halfstrips participating in a pattern
     MAX_HALFSTRIPS_IN_PATTERN = 42};
 
-  enum Digis_Info {
+  /*enum Digis_Info {
     MAX_DIGIS_PER_ALCT = 10,
-    MAX_DIGIS_PER_CLCT = 8 };
+    MAX_DIGIS_PER_CLCT = 8 };*/
+
+  enum Digis_Info {
+      MAX_DIGIS_PER_ALCT = 999,
+      MAX_DIGIS_PER_CLCT = 999 };
 
   enum LCT_stubs{
     // CSC local trigger considers 4-bit BX window (16 numbers) in the readout
@@ -77,11 +81,12 @@ class CSCConstants
     // Maximum allowed matching window size
     MAX_MATCH_WINDOW_SIZE = 15,
     // Each CLCT processor can send up to 2 CLCTs to TMB per BX
-    MAX_CLCTS_PER_PROCESSOR = 2,
+    MAX_CLCTS_PER_PROCESSOR = 999,
     // Each ALCT processor can send up to 2 ALCTs to TMB per BX
     MAX_ALCTS_PER_PROCESSOR = 999,
     // Each CSC can send up to 2 LCTs to the MPC per BX
-    MAX_LCTS_PER_CSC = 2,
+    //MAX_LCTS_PER_CSC = 2,
+    MAX_LCTS_PER_CSC = 9999, //sixie changed this to a large number for the ideal test
     // An MPC receives up to 18 LCTs from 9 CSCs in the trigger sector
     MAX_LCTS_PER_MPC = 18,
     // Reference BX for LCTs in simulation and firmware

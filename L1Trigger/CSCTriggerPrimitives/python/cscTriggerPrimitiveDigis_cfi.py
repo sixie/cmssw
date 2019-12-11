@@ -17,6 +17,10 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     # If True, output collections will only be built for good chambers
     checkBadChambers = cms.bool(True),
 
+    # Write out all CLCTs
+    writeOutAllCLCTs = cms.bool(True),  
+    writeOutAllALCTs = cms.bool(True),
+
     # Parameters common for all boards
     commonParam = cms.PSet(
         # Master flag for SLHC studies

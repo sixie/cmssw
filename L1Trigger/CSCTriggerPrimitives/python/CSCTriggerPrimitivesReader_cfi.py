@@ -8,7 +8,7 @@ lctreader = cms.EDAnalyzer("CSCTriggerPrimitivesReader",
     # Parameters common for all boards
     commonParam = cscTriggerPrimitiveDigis.commonParam,
     # Switch on/off the verbosity and turn on/off histogram production
-    debug = cms.untracked.bool(False),
+    debug = cms.untracked.bool(True),
     # Define which LCTs are present in the input file.  This will determine the
     # workflow of the Reader.
                            dataLctsIn = cms.bool(False),
@@ -29,6 +29,7 @@ lctreader = cms.EDAnalyzer("CSCTriggerPrimitivesReader",
     # Labels to retrieve simHits, comparator and wire digis.
     #  (Used only when emulLctsIn = true.)
     CSCSimHitProducer = cms.InputTag("g4SimHits", "MuonCSCHits"),  # Full sim.
+    genParticles      = cms.InputTag("genParticles"),#GenParticles to access full info
     #CSCSimHitProducer = cms.InputTag("MuonSimHits", "MuonCSCHits"), # Fast sim.
     #simulation
     #CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
@@ -37,5 +38,5 @@ lctreader = cms.EDAnalyzer("CSCTriggerPrimitivesReader",
     CSCComparatorDigiProducer = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi"),
     CSCWireDigiProducer = cms.InputTag("muonCSCDigis","MuonCSCWireDigi"),
     checkBadChambers = cms.untracked.bool(True),
-    dataIsAnotherMC = cms.untracked.bool(False)
+    dataIsAnotherMC = cms.untracked.bool(True)#default was False
 )

@@ -32,11 +32,14 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 #include <TH1.h>
 #include <TH2.h>
 #include <TTree.h>
 #include <sstream>
 #define MAXSTUBS 100
+#define MAXLLPS 2
 
 class CSCGeometry;
 class CSCBadChambers;
@@ -189,6 +192,11 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lcts_tmb_e_token_;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lcts_mpc_e_token_;
 
+  //GenParticleToken
+  edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
+  //handle
+  //GEN particles
+  edm::Handle<reco::GenParticleCollection> genParticles;
   // a prefix for results ps files
   std::string   resultsFileNamesPrefix_;
 
@@ -237,6 +245,9 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
 
   static bool printps;
 
+  //modified alct functions
+  void resetALCTreeBranches();
+  void enableALCTreeBranches();
 
   void setRootStyle();
 
@@ -313,6 +324,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   //fill 3 Trees
   MyStubComparison stubs_comparison[4];
   TTree *stub_tree[4];
+  TTree* modified_alct;//tree for modified aclc and llp information
   //fill 3 Trees: alct, clct, lct for data and emul
   TreePerStub perStub[6];
   TTree *event_tree[6];
@@ -457,6 +469,15 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   TH1F *hLctTMBKeyStripME11;
   TH1F *hLctMPCKeyGroupME11;
   TH1F *hLctMPCKeyStripME11;
+
+
+  //modified ALCT Tree variables
+  int nWireDigis;
+  int nALCTs;
+  float llp_decay_x[MAXLLPS];
+  float llp_decay_y[MAXLLPS];
+  float llp_decay_z[MAXLLPS];
+  bool llp_in_acceptance[MAXLLPS];
 };
 
 #endif
