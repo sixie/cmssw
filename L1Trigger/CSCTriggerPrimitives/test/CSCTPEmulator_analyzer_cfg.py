@@ -8,7 +8,7 @@ from Configuration.StandardSequences.Eras import eras
 process = cms.Process("CSCTPEmulator", eras.Run3)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1000)
     #input = cms.untracked.int32(-1)
 )
 
@@ -23,18 +23,18 @@ process.source = cms.Source("PoolSource",
      )
 )
 
-#process.MessageLogger = cms.Service("MessageLogger",
-#    destinations = cms.untracked.vstring("debug"),
-#    debug = cms.untracked.PSet(
-#        extension = cms.untracked.string(".txt"),
-#        threshold = cms.untracked.string("DEBUG"),
-#        # threshold = cms.untracked.string("WARNING"),
-#        lineLength = cms.untracked.int32(132),
-#        noLineBreaks = cms.untracked.bool(True)
-#    ),
-#    debugModules = cms.untracked.vstring("cscTriggerPrimitiveDigis",
-#                                         "lctreader")
-#)
+process.MessageLogger = cms.Service("MessageLogger",
+   destinations = cms.untracked.vstring("debug"),
+   debug = cms.untracked.PSet(
+       extension = cms.untracked.string(".txt"),
+       threshold = cms.untracked.string("DEBUG"),
+       # threshold = cms.untracked.string("WARNING"),
+       lineLength = cms.untracked.int32(132),
+       noLineBreaks = cms.untracked.bool(True)
+   ),
+   debugModules = cms.untracked.vstring("cscTriggerPrimitiveDigis",
+                                        "lctreader","lctDigis","nearestWG", "nearestHS")
+)
 
 # es_source of ideal geometry
 # ===========================

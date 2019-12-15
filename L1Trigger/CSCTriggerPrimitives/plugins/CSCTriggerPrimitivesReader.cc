@@ -436,8 +436,11 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
   RUN_ = ev.id().run();
   Event_ = ev.id().event();
 
-
-  cout << "Analyze Event: " << ev.id().run() << " : " << ev.id().event() << "\n";
+  //sixie added
+  cout 
+    << "\n\n\n** CSCTriggerPrimitivesReader: processing run #"
+    << ev.id().run() << " event #" << ev.id().event()
+    << "; events so far: " << eventsAnalyzed << " **";
 
   // Find the geometry for this event & cache it.  Needed in LCTAnalyzer
   // modules.
@@ -1234,6 +1237,15 @@ void CSCTriggerPrimitivesReader::fillALCTHistos(const CSCALCTDigiCollection* alc
                      << " (sector " << id.triggerSector()
                      << " trig id. " << id.triggerCscId() << ")";
         //cout << "raw id = " << id.rawId() << endl;
+
+	//sixie added
+	cout 
+	  << (*digiIt) << " found in ME" << ((id.endcap() == 1) ? "+" : "-")
+	  << id.station() << "/" << id.ring() << "/" << id.chamber()
+	  << " (sector " << id.triggerSector()
+	  << " trig id. " << id.triggerCscId() << ")" << "\n";
+	
+	
       }
     }
     hAlctPerChamber->Fill(nValidALCTsPerCSC);
@@ -1241,6 +1253,8 @@ void CSCTriggerPrimitivesReader::fillALCTHistos(const CSCALCTDigiCollection* alc
   hAlctPerEvent->Fill(nValidALCTs);
   if (debug) LogTrace("CSCTriggerPrimitivesReader")
                << nValidALCTs << " valid ALCTs found in this event";
+  //sixie added
+  cout   << nValidALCTs << " valid ALCTs found in this event\n";  
 
   numALCT += nValidALCTs;
   nALCTs = nValidALCTs;
@@ -1296,6 +1310,14 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
                      << id.station() << "/" << id.ring() << "/" << id.chamber()
                      << " (sector " << id.triggerSector()
                      << " trig id. " << id.triggerCscId() << ")";
+
+	//sixie
+	cout 
+	  << (*digiIt) << " found in ME" << ((id.endcap() == 1) ? "+" : "-")
+                     << id.station() << "/" << id.ring() << "/" << id.chamber()
+                     << " (sector " << id.triggerSector()
+	  << " trig id. " << id.triggerCscId() << ")" << "\n";
+
       }
     }
     hClctPerChamber->Fill(nValidCLCTsPerCSC);
@@ -1303,6 +1325,11 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
   hClctPerEvent->Fill(nValidCLCTs);
   if (debug) LogTrace("CSCTriggerPrimitivesReader")
                << nValidCLCTs << " valid CLCTs found in this event";
+
+  //sixie
+  cout << nValidCLCTs << " valid CLCTs found in this event\n";
+
+
   numCLCT += nValidCLCTs;
 }
 
@@ -1368,6 +1395,14 @@ void CSCTriggerPrimitivesReader::fillLCTTMBHistos(const CSCCorrelatedLCTDigiColl
                      << id.station() << "/" << id.ring() << "/" << id.chamber()
                      << " (sector " << id.triggerSector()
                      << " trig id. " << id.triggerCscId() << ")";
+
+	//sixie
+	cout 
+	  << (*digiIt) << " found in ME" << ((id.endcap() == 1) ? "+" : "-")
+                     << id.station() << "/" << id.ring() << "/" << id.chamber()
+                     << " (sector " << id.triggerSector()
+	  << " trig id. " << id.triggerCscId() << ")" << "\n";
+
       }
     }
     hLctTMBPerChamber->Fill(nValidLCTsPerCSC);
@@ -1375,6 +1410,10 @@ void CSCTriggerPrimitivesReader::fillLCTTMBHistos(const CSCCorrelatedLCTDigiColl
   hLctTMBPerEvent->Fill(nValidLCTs);
   if (debug) LogTrace("CSCTriggerPrimitivesReader")
                << nValidLCTs << " valid LCTs found in this event";
+  
+  //sixie
+  cout   << nValidLCTs << " valid LCTs found in this event\n";
+  
   numLCTTMB += nValidLCTs;
 }
 
@@ -1439,12 +1478,26 @@ void CSCTriggerPrimitivesReader::fillLCTMPCHistos(const CSCCorrelatedLCTDigiColl
                      << id.station() << "/" << id.ring() << "/" << id.chamber()
                      << " (sector " << id.triggerSector()
                      << " trig id. " << id.triggerCscId() << ")";
+
+	//sixie
+	cout  
+	  << "MPC "
+                     << (*digiIt) << " found in ME" << ((id.endcap() == 1) ? "+" : "-")
+                     << id.station() << "/" << id.ring() << "/" << id.chamber()
+                     << " (sector " << id.triggerSector()
+	  << " trig id. " << id.triggerCscId() << ")" << "\n";
+
       }
     }
   }
   hLctMPCPerEvent->Fill(nValidLCTs);
   if (debug) LogTrace("CSCTriggerPrimitivesReader")
                << nValidLCTs << " MPC LCTs found in this event";
+
+  //sixie
+  cout  << nValidLCTs << " MPC LCTs found in this event\n";
+
+
   numLCTMPC += nValidLCTs;
 }
 
@@ -1541,6 +1594,9 @@ void CSCTriggerPrimitivesReader::compareALCTs(const CSCALCTDigiCollection* alcts
               strstrm << "\n";
             }
             LogTrace("CSCTriggerPrimitivesReader") << strstrm.str();
+	    //sixie
+	    cout << strstrm.str() << "\n";
+
             //if (stat==1 && ring==1)
             //	std::cout <<"ME11  CompareALCTs "<< strstrm.str()<< std::endl;
           }
@@ -1597,6 +1653,14 @@ void CSCTriggerPrimitivesReader::compareALCTs(const CSCALCTDigiCollection* alcts
               << ((endc == 1) ? "+" : "-") << stat << "/"
               << ring << "/" << cham
               << ": data = " << ndata << " emulator = " << nemul << " +++\n";
+
+	    //sixie
+	    cout 
+	      << "   +++ Different numbers of ALCTs found in ME"
+              << ((endc == 1) ? "+" : "-") << stat << "/"
+              << ring << "/" << cham
+              << ": data = " << ndata << " emulator = " << nemul << " +++\n";
+
           }
           else {
             hAlctCompSameNCsc[endc-1][csctype]->Fill(cham);
@@ -1679,6 +1743,10 @@ void CSCTriggerPrimitivesReader::compareALCTs(const CSCALCTDigiCollection* alcts
                 }
                 if (debug) LogTrace("CSCTriggerPrimitivesReader")
                              << "       Identical ALCTs #" << data_trknmb;
+		//sixie
+		cout   << "       Identical ALCTs #" << data_trknmb;
+
+
                 stubs_comparison[0].nStub_emul = j+1;
                 stubs_comparison[0].has_emul = true;
                 stubs_comparison[0].quality_emul = alctV_emul[j].getQuality();
@@ -1696,6 +1764,11 @@ void CSCTriggerPrimitivesReader::compareALCTs(const CSCALCTDigiCollection* alcts
                   << "       Different ALCTs #" << data_trknmb << " in ME"
                   << ((endc == 1) ? "+" : "-") << stat << "/"
                   << ring << "/" << cham;
+		//sixie
+		cout 
+		  << "       Different ALCTs #" << data_trknmb << " in ME"
+                  << ((endc == 1) ? "+" : "-") << stat << "/"
+                  << ring << "/" << cham;
               }
 
             }//loop emul
@@ -1705,6 +1778,13 @@ void CSCTriggerPrimitivesReader::compareALCTs(const CSCALCTDigiCollection* alcts
                 <<" stubs_comparison 0 key_WG_data "<<stubs_comparison[0].key_WG_data <<" key_WG_emul "<< stubs_comparison[0].key_WG_emul;
             //if (stat==1) std::cout <<" stub_tree filled , ring "<< stubs_comparison[0].ring << std::endl;
             //cout <<"ALCT data BX "<< stubs_comparison[0].bx_data <<" WG "<< stubs_comparison[0].key_WG_data <<" emul BX "<< stubs_comparison[0].bx_emul<<" emul BX corrected "<< stubs_comparison[0].bx_corr_emul <<" WG "<< stubs_comparison[0].key_WG_emul << endl;
+
+	    //sixie
+	    cout 
+	      <<" not matched ALCT from data "<< alctV_data[i]
+	      <<" stubs_comparison 0 key_WG_data "<<stubs_comparison[0].key_WG_data <<" key_WG_emul "<< stubs_comparison[0].key_WG_emul;
+           
+
             stub_tree[0]->Fill();
           }//loop data
           for (int i = 0; i<nemul; i++){
@@ -1742,6 +1822,10 @@ void CSCTriggerPrimitivesReader::compareALCTs(const CSCALCTDigiCollection* alcts
             if (debug)
               LogTrace("CSCTriggerPrimitivesReader")
                 <<"not matched ALCT from emulation "<< alctV_emul[i];
+
+	    //sixie
+	    cout     <<"not matched ALCT from emulation "<< alctV_emul[i];
+
 
           }//loop emul
         }
@@ -2765,8 +2849,9 @@ void CSCTriggerPrimitivesReader::HotWires(const edm::Event& iEvent)
 void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
                                            const CSCALCTDigiCollection* alcts,
                                            const CSCCLCTDigiCollection* clcts) {
-  cout << "[sixie]: " << ev.id().event() << " : " << "MC Studies\n";
-  
+  cout << "\n[sixie]: " << ev.id().event() << " : " << "MC Studies\n";
+  LogDebug("CSCTriggerPrimitivesReader") << "[sixie]: " << ev.id().event() << " : " << "MC Studies\n";
+
 // MC particles, if any.
   //edm::Handle<edm::HepMCProduct> mcp;
   //ev.getByLabel("source", mcp);
@@ -2879,6 +2964,16 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
     }
   }
 
+  bool LLP1InAcceptance = false;  
+  bool LLP2InAcceptance = false;
+  cout << "LLP1: " << llp_decay_x[0] << " " << llp_decay_y[0] << " " << llp_decay_y[0] << " " << llp_in_acceptance[0] << " \n";
+  cout << "LLP2: " << llp_decay_x[1] << " " << llp_decay_y[1] << " " << llp_decay_y[1] << " " << llp_in_acceptance[1] << " \n";
+  LogDebug("CSCTriggerPrimitivesReader") << "LLP1: " << llp_decay_x[0] << " " << llp_decay_y[0] << " " << llp_decay_y[0] << " " << llp_in_acceptance[0] << " \n";
+  LogDebug("CSCTriggerPrimitivesReader") << "LLP2: " << llp_decay_x[1] << " " << llp_decay_y[1] << " " << llp_decay_y[1] << " " << llp_in_acceptance[1] << " \n";
+
+
+
+
 
     // If hepMC info is there, try to get wire and comparator digis,
     // and SimHits.
@@ -2962,7 +3057,10 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
       }
     } 
 
-    cout << "[sixie]: " << ev.id().event() << " : " << myALCTCount << " " << myCLCTCount << "\n";
+    if (llp_in_acceptance[0] || llp_in_acceptance[1]) {
+      cout << "[sixie]: (in acceptance) | ALCTs CLCTs : " << ev.id().event() << " : " << myALCTCount << " " << myCLCTCount << "\n";
+      LogDebug("CSCTriggerPrimitivesReader") << "[sixie]: (in acceptance) | ALCTs CLCTs : " << ev.id().event() << " : " << myALCTCount << " " << myCLCTCount << "\n";
+    }
 
 
   }
