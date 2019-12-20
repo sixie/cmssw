@@ -79,10 +79,7 @@ class CSCCathodeLCTProcessor : public CSCBaseboard
   std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1b() const;
 
   /** Best LCT in this chamber, as found by the processor. */
-  CSCCLCTDigi bestCLCT[CSCConstants::MAX_CLCT_TBINS];
-
-  /** Second best LCT in this chamber, as found by the processor. */
-  CSCCLCTDigi secondCLCT[CSCConstants::MAX_CLCT_TBINS];
+  CSCCLCTDigi CLCTContainer_[CSCConstants::MAX_CLCT_TBINS][CSCConstants::MAX_CLCTS_PER_PROCESSOR];
 
  protected:
 

@@ -333,8 +333,9 @@ void CSCCathodeLCTProcessor::clear() {
   thePreTriggerDigis.clear();
   thePreTriggerBXs.clear();
   for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
-    bestCLCT[bx].clear();
-    secondCLCT[bx].clear();
+    for (int iCLCT = 0; iCLCT < CSCConstants::MAX_CLCTS_PER_PROCESSOR; iCLCT++) {
+      CLCTContainer_[bx][iCLCT].clear();
+    }
   }
 }
 
@@ -487,7 +488,7 @@ void CSCCathodeLCTProcessor::run(const std::vector<int> halfstrip[CSCConstants::
   if (CLCTlist.size() > 1)
     sort(CLCTlist.begin(), CLCTlist.end(), std::greater<CSCCLCTDigi>());
 
-  // Take the best two candidates per bx.
+  // Take the best MAX_CLCTS_PER_PROCESSOR candidates per bx.
   for (const auto& p : CLCTlist) {
     const int bx = p.getBX();
     if (bx >= CSCConstants::MAX_CLCT_TBINS) {
@@ -497,30 +498,28 @@ void CSCCathodeLCTProcessor::run(const std::vector<int> halfstrip[CSCConstants::
       continue;
     }
 
-    if (!bestCLCT[bx].isValid()) {
-      bestCLCT[bx] = p;
-    }
-    else if (!secondCLCT[bx].isValid()) {
-      secondCLCT[bx] = p;
+    // assign the CLCT properties
+    for (int iCLCT = 0; iCLCT < CSCConstants::MAX_CLCTS_PER_PROCESSOR; iCLCT++) {
+      if (!CLCTContainer_[bx][iCLCT].isValid()) {
+        CLCTContainer_[bx][0] = p;
+      }
+      else if (iCLCT > 0 and CLCTContainer_[bx][iCLCT-1].isValid()) {
+        CLCTContainer_[bx][iCLCT] = p;
+      }
     }
   }
 
+  // assign track number
   for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
-    if (bestCLCT[bx].isValid()) {
-      bestCLCT[bx].setTrknmb(1);
-      if (infoV > 0) LogDebug("CSCCathodeLCTProcessor")
-                       << bestCLCT[bx] << " found in " <<
-                       CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
-                       << " (sector " << theSector << " subsector " << theSubsector
-                       << " trig id. " << theTrigChamber << ")" << "\n";
-    }
-    if (secondCLCT[bx].isValid()) {
-      secondCLCT[bx].setTrknmb(2);
-      if (infoV > 0) LogDebug("CSCCathodeLCTProcessor")
-                       << secondCLCT[bx] << " found in " <<
-                       CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
-                       << " (sector " << theSector << " subsector " << theSubsector
-                       << " trig id. " << theTrigChamber << ")" << "\n";
+    for (int iCLCT = 0; iCLCT < CSCConstants::MAX_CLCTS_PER_PROCESSOR; iCLCT++) {
+      if (CLCTContainer_[bx][iCLCT].isValid()) {
+        CLCTContainer_[bx][iCLCT].setTrknmb(iCLCT);
+        if (infoV > 0)
+          LogDebug("CSCCathodeLCTProcessor")
+            << CLCTContainer_[bx][iCLCT] << " found in " << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
+            << " (sector " << theSector << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
+            << "\n";
+      }
     }
   }
   // Now that we have our best CLCTs, they get correlated with the best
@@ -641,12 +640,12 @@ void CSCCathodeLCTProcessor::readComparatorDigis(
       for (unsigned int i = 0; i < bx_times.size(); i++) {
 	// Total number of time bins in DAQ readout is given by fifo_tbins,
 	// which thus determines the maximum length of time interval.
-	// 
+	//
 	// In data, only the CLCT in the time bin that was matched with L1A are read out
 	// while comparator digi is read out by 12 time bin, which includes 12 time bin info
 	// in other word, CLCTs emulated from comparator digis usually showed the OTMB behavior in 12 time bin
 	// while CLCT from data only showed 1 time bin OTMB behavior
-	// the CLCT emulated from comparator digis usually is centering at time bin 7 (BX7) and 
+	// the CLCT emulated from comparator digis usually is centering at time bin 7 (BX7) and
 	// it is definitly safe to ignore any CLCTs in bx 0 or 1 and those CLCTs will never impacts on any triggers
 	if (bx_times[i] > 1 && bx_times[i] < static_cast<int>(fifo_tbins)) {
 
@@ -1341,8 +1340,28 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs() const
 {
   std::vector<CSCCLCTDigi> tmpV;
   for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
-    if (bestCLCT[bx].isValid())   tmpV.push_back(bestCLCT[bx]);
-    if (secondCLCT[bx].isValid()) tmpV.push_back(secondCLCT[bx]);
+    for (int iCLCT = 0; iCLCT < CSCConstants::MAX_CLCTS_PER_PROCESSOR; iCLCT++) {
+      if (CLCTContainer_[bx][iCLCT].isValid()) {
+        tmpV.push_back(CLCTContainer_[bx][iCLCT]);
+      }
+    }
   }
   return tmpV;
+}
+
+// shift the BX from 7 to 8
+// the unpacked real data CLCTs have central BX at bin 7
+// however in simulation the central BX  is bin 8
+// to make a proper comparison with ALCTs we need
+// CLCT and ALCT to have the central BX in the same bin
+CSCCLCTDigi CSCCathodeLCTProcessor::getBestCLCT(int bx) const {
+  CSCCLCTDigi lct = CLCTContainer_[bx][0];
+  lct.setBX(lct.getBX() + alctClctOffset_);
+  return lct;
+}
+
+CSCCLCTDigi CSCCathodeLCTProcessor::getSecondCLCT(int bx) const {
+  CSCCLCTDigi lct = CLCTContainer_[bx][1];
+  lct.setBX(lct.getBX() + alctClctOffset_);
+  return lct;
 }
