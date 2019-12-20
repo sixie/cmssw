@@ -513,7 +513,7 @@ void CSCCathodeLCTProcessor::run(const std::vector<int> halfstrip[CSCConstants::
   for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
     for (int iCLCT = 0; iCLCT < CSCConstants::MAX_CLCTS_PER_PROCESSOR; iCLCT++) {
       if (CLCTContainer_[bx][iCLCT].isValid()) {
-        CLCTContainer_[bx][iCLCT].setTrknmb(iCLCT);
+        CLCTContainer_[bx][iCLCT].setTrknmb(iCLCT+1);
         if (infoV > 0)
           LogDebug("CSCCathodeLCTProcessor")
             << CLCTContainer_[bx][iCLCT] << " found in " << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
