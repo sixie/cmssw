@@ -2964,10 +2964,19 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
     }
   }
 
-  bool LLP1InAcceptance = false;  
-  bool LLP2InAcceptance = false;
-  cout << "LLP1: " << llp_decay_x[0] << " " << llp_decay_y[0] << " " << llp_decay_y[0] << " " << llp_in_acceptance[0] << " \n";
-  cout << "LLP2: " << llp_decay_x[1] << " " << llp_decay_y[1] << " " << llp_decay_y[1] << " " << llp_in_acceptance[1] << " \n";
+  double LLP1Eta = log(0.5*(sqrt(pow(llp_decay_x[0],2)+pow(llp_decay_y[0],2)) / llp_decay_z[0]));
+  if (llp_decay_z[0] < 0) LLP1Eta = -1* log(-1*0.5*(sqrt(pow(llp_decay_x[0],2)+pow(llp_decay_y[0],2)) / llp_decay_z[0]));
+  double LLP1Phi = atan2(llp_decay_y[0],llp_decay_x[0]);
+  double LLP2Eta = -1* log(0.5*(sqrt(pow(llp_decay_x[1],2)+pow(llp_decay_y[1],2)) / llp_decay_z[1]));
+  if (llp_decay_z[1] < 0) LLP2Eta = -1* log(-1*0.5*(sqrt(pow(llp_decay_x[1],2)+pow(llp_decay_y[1],2)) / llp_decay_z[1]));
+  double LLP2Phi = atan2(llp_decay_y[1],llp_decay_x[1]);
+
+  cout << "LLP1: " << llp_decay_x[0] << " " << llp_decay_y[0] << " " << llp_decay_z[0] << " " << llp_in_acceptance[0] << " "     
+       << LLP1Eta << " " << LLP1Phi << " "
+       << " \n";
+  cout << "LLP2: " << llp_decay_x[1] << " " << llp_decay_y[1] << " " << llp_decay_z[1] << " " << llp_in_acceptance[1] << " "
+       << LLP2Eta  << " " << LLP2Phi << " "
+       << " \n";
   LogDebug("CSCTriggerPrimitivesReader") << "LLP1: " << llp_decay_x[0] << " " << llp_decay_y[0] << " " << llp_decay_y[0] << " " << llp_in_acceptance[0] << " \n";
   LogDebug("CSCTriggerPrimitivesReader") << "LLP2: " << llp_decay_x[1] << " " << llp_decay_y[1] << " " << llp_decay_y[1] << " " << llp_in_acceptance[1] << " \n";
 
