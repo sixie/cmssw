@@ -71,6 +71,11 @@ class CSCCathodeLCTProcessor : public CSCBaseboard
   /** Returns vector of all found CLCTs, if any. */
   std::vector<CSCCLCTDigi> getCLCTs() const;
 
+  /** get best/second best CLCT
+   * Note: CLCT has BX shifted */
+  CSCCLCTDigi getBestCLCT(int bx) const;
+  CSCCLCTDigi getSecondCLCT(int bx) const;
+
   std::vector<int> preTriggerBXs() const {return thePreTriggerBXs;}
 
   /** read out CLCTs in ME1a , ME1b */

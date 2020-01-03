@@ -784,8 +784,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
             int best_hs = best_halfstrip[ilct];
             if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
               keystrip_data[ilct][CLCT_PATTERN] = best_pid[best_hs];
-              keystrip_data[ilct][CLCT_BEND] =
-                CSCPatternBank::clct_pattern[best_pid[best_hs]][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
+              keystrip_data[ilct][CLCT_BEND] = pattern2007[best_pid[best_hs]][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
               // Remove stagger if any.
               keystrip_data[ilct][CLCT_STRIP] = best_hs - stagger[CSCConstants::KEY_CLCT_LAYER - 1];
               // all CLCTs have the same BX here
@@ -807,7 +806,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
 
               if (infoV > 1) {
                 LogTrace("CSCCathodeLCTProcessor")
-                  << " Final selection: ilct " << ilct << " " << lct << std::endl;
+                  << " Final selection: ilct " << ilct << " " << thisLCT << std::endl;
               }
               lctList.push_back(thisLCT);
             }

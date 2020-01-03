@@ -159,7 +159,7 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
       // correlated LCT to be formed.  Decision on whether to reject
       // non-complete LCTs (and if yes of which type) is made further
       // upstream.
-      if (clctProc->bestCLCT[bx_clct].isValid()) {
+      if (clctProc->getBestCLCT(bx_clct).isValid()) {
         // Look for ALCTs within the match-time window.  The window is
         // centered at the CLCT bx; therefore, we make an assumption
         // that anode and cathode hits are perfectly synchronized.  This
@@ -183,7 +183,7 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
                              << "; match window: [" << bx_alct_start << "; " << bx_alct_stop
                              << "]; bx_alct = " << bx_alct;
             correlateLCTs(alctProc->bestALCT[bx_alct], alctProc->secondALCT[bx_alct],
-                          clctProc->bestCLCT[bx_clct], clctProc->secondCLCT[bx_clct],
+                          clctProc->getBestCLCT(bx_clct), clctProc->getSecondCLCT(bx_clct),
                           CSCCorrelatedLCTDigi::CLCTALCT);
             used_alct_mask[bx_alct] += 1;
             is_matched = true;
@@ -196,11 +196,11 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
         if (!is_matched and clct_trig_enable) {
           if (infoV > 1) LogTrace("CSCMotherboard")
                            << "Unsuccessful CLCT-ALCT match (CLCT only): bx_clct = "
-                           << bx_clct <<" first ALCT "<< clctProc->bestCLCT[bx_clct] 
+                           << bx_clct <<" first ALCT "<< clctProc->getBestCLCT(bx_clct)
                            << "; match window: [" << bx_alct_start
                            << "; " << bx_alct_stop << "]";
           correlateLCTs(alctProc->bestALCT[bx_clct], alctProc->secondALCT[bx_clct],
-                        clctProc->bestCLCT[bx_clct], clctProc->secondCLCT[bx_clct],
+                        clctProc->getBestCLCT(bx_clct), clctProc->getSecondCLCT(bx_clct),
                         CSCCorrelatedLCTDigi::CLCTONLY);
         }
       }
@@ -216,7 +216,7 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
                              << "Unsuccessful CLCT-ALCT match (ALCT only): bx_alct = "
                              << bx_alct;
             correlateLCTs(alctProc->bestALCT[bx_alct], alctProc->secondALCT[bx_alct],
-                          clctProc->bestCLCT[bx_clct], clctProc->secondCLCT[bx_clct],
+                          clctProc->getBestCLCT(bx_clct), clctProc->getSecondCLCT(bx_clct),
                           CSCCorrelatedLCTDigi::ALCTONLY);
           }
         }
@@ -253,13 +253,13 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
             continue;
           // default: do not reuse CLCTs that were used with previous ALCTs
           if (drop_used_clcts && used_clct_mask[bx_clct]) continue;
-          if (clctProc->bestCLCT[bx_clct].isValid()) {
+          if (clctProc->getBestCLCT(bx_clct).isValid()) {
             if (infoV > 1) LogTrace("CSCMotherboard")
                              << "Successful ALCT-CLCT match: bx_alct = " << bx_alct
                              << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
                              << "]; bx_clct = " << bx_clct;
             correlateLCTs(alctProc->bestALCT[bx_alct], alctProc->secondALCT[bx_alct],
-                          clctProc->bestCLCT[bx_clct], clctProc->secondCLCT[bx_clct],
+                          clctProc->getBestCLCT(bx_clct), clctProc->getSecondCLCT(bx_clct),
                           CSCCorrelatedLCTDigi::ALCTCLCT);
             used_clct_mask[bx_clct] += 1;
             is_matched = true;
@@ -272,12 +272,12 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
         if (!is_matched) {
           if (infoV > 1) LogTrace("CSCMotherboard")
                            << "Unsuccessful ALCT-CLCT match (ALCT only): bx_alct = "
-                           << bx_alct <<" first ALCT "<< alctProc->bestALCT[bx_alct] 
+                           << bx_alct <<" first ALCT "<< alctProc->bestALCT[bx_alct]
                            << "; match window: [" << bx_clct_start
                            << "; " << bx_clct_stop << "]";
           if (alct_trig_enable)
 	      correlateLCTs(alctProc->bestALCT[bx_alct], alctProc->secondALCT[bx_alct],
-                        clctProc->bestCLCT[bx_alct], clctProc->secondCLCT[bx_alct],
+                      clctProc->getBestCLCT(bx_alct), clctProc->getSecondCLCT(bx_alct),
                         CSCCorrelatedLCTDigi::ALCTONLY);
         }
       }
@@ -288,12 +288,12 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
       else {
         int bx_clct = bx_alct - match_trig_window_size/2;
         if (bx_clct >= 0 && bx_clct > bx_clct_matched) {
-          if (clctProc->bestCLCT[bx_clct].isValid() and clct_trig_enable) {
+          if (clctProc->getBestCLCT(bx_clct).isValid() and clct_trig_enable) {
             if (infoV > 1) LogTrace("CSCMotherboard")
                              << "Unsuccessful ALCT-CLCT match (CLCT only): bx_clct = "
                              << bx_clct;
             correlateLCTs(alctProc->bestALCT[bx_alct], alctProc->secondALCT[bx_alct],
-                          clctProc->bestCLCT[bx_clct], clctProc->secondCLCT[bx_clct],
+                          clctProc->getBestCLCT(bx_clct), clctProc->getSecondCLCT(bx_clct),
                           CSCCorrelatedLCTDigi::CLCTONLY);
           }
         }
