@@ -71,6 +71,11 @@ class CSCCathodeLCTProcessor : public CSCBaseboard
   /** Returns vector of all found CLCTs, if any. */
   std::vector<CSCCLCTDigi> getCLCTs() const;
 
+  /** get best/second best CLCT
+   * Note: CLCT has BX shifted */
+  CSCCLCTDigi getBestCLCT(int bx) const;
+  CSCCLCTDigi getSecondCLCT(int bx) const;
+
   std::vector<int> preTriggerBXs() const {return thePreTriggerBXs;}
 
   /** read out CLCTs in ME1a , ME1b */
@@ -79,10 +84,7 @@ class CSCCathodeLCTProcessor : public CSCBaseboard
   std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1b() const;
 
   /** Best LCT in this chamber, as found by the processor. */
-  CSCCLCTDigi bestCLCT[CSCConstants::MAX_CLCT_TBINS];
-
-  /** Second best LCT in this chamber, as found by the processor. */
-  CSCCLCTDigi secondCLCT[CSCConstants::MAX_CLCT_TBINS];
+  CSCCLCTDigi CLCTContainer_[CSCConstants::MAX_CLCT_TBINS][CSCConstants::MAX_CLCTS_PER_PROCESSOR];
 
  protected:
 

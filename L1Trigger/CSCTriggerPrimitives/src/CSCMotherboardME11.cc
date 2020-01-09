@@ -87,7 +87,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
 
     for (int bx_clct = 0; bx_clct < CSCConstants::MAX_CLCT_TBINS; bx_clct++) {
 
-      if (clctProc->bestCLCT[bx_clct].isValid()) {
+      if (clctProc->getBestCLCT(bx_clct).isValid()) {
         bool is_matched = false;
         const int bx_alct_start = bx_clct - match_trig_window_size/2 + alctClctOffset_;
         const int bx_alct_stop  = bx_clct + match_trig_window_size/2 + alctClctOffset_;
@@ -102,7 +102,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
                              << "]; bx_alct = " << bx_alct;
             int mbx = bx_alct_stop - bx_alct;
             correlateLCTsME11(alctProc->bestALCT[bx_alct], alctProc->secondALCT[bx_alct],
-                              clctProc->bestCLCT[bx_clct], clctProc->secondCLCT[bx_clct],
+                              clctProc->getBestCLCT(bx_clct), clctProc->getSecondCLCT(bx_clct),
                               allLCTs(bx_alct,mbx,0), allLCTs(bx_alct,mbx,1));
             if (allLCTs(bx_alct,mbx,0).isValid()) {
               used_alct_mask[bx_alct] += 1;
@@ -114,7 +114,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
         if (!is_matched) {
           if (infoV > 1) LogTrace("CSCMotherboard")
                            << "Unsuccessful ALCT-CLCT match (CLCT only): bx_clct = "
-                           << bx_clct <<" first CLCT "<< clctProc->bestCLCT[bx_clct]
+                           << bx_clct <<" first CLCT "<< clctProc->getBestCLCT(bx_clct)
                            <<"; match window: [" << bx_alct_start
                            << "; " << bx_alct_stop << "]";
         }
@@ -134,14 +134,14 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
         for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++) {
           if (bx_clct < 0 || bx_clct >= CSCConstants::MAX_CLCT_TBINS) continue;
           if (drop_used_clcts && used_clct_mask[bx_clct]) continue;
-          if (clctProc->bestCLCT[bx_clct].isValid()) {
+          if (clctProc->getBestCLCT(bx_clct).isValid()) {
             if (infoV > 1) LogTrace("CSCMotherboardME11")
                              << "Successful ALCT-CLCT match in ME11: bx_alct = " << bx_alct
                              << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
                              << "]; bx_clct = " << bx_clct;
             int mbx = bx_clct-bx_clct_start;
             correlateLCTsME11(alctProc->bestALCT[bx_alct], alctProc->secondALCT[bx_alct],
-                              clctProc->bestCLCT[bx_clct], clctProc->secondCLCT[bx_clct],
+                              clctProc->getBestCLCT(bx_clct), clctProc->getSecondCLCT(bx_clct),
                               allLCTs(bx_alct,mbx,0), allLCTs(bx_alct,mbx,1));
             if (allLCTs(bx_alct,mbx,0).isValid()) {
               is_matched = true;
@@ -447,5 +447,3 @@ void CSCMotherboardME11::correlateLCTsME11(const CSCALCTDigi& bALCT,
     return;
   }
 }
-
-

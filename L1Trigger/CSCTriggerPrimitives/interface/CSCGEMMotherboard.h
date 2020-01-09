@@ -137,7 +137,7 @@ protected:
   // use this function when the best matching copads are not clear yet
   // the template is ALCT or CLCT
   template <class T>
-  void correlateLCTsGEM(T& best, T& second, const GEMCoPadDigiIds& coPads,
+  void correlateLCTsGEM(const T& best, const T& second, const GEMCoPadDigiIds& coPads,
                         CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2) const;
 
   // correlate ALCTs/CLCTs with their best matching GEM copads
@@ -301,7 +301,7 @@ void CSCGEMMotherboard::matchingPads(const CSCCLCTDigi& clct,
   const auto& mymap = (getLUT()->get_csc_hs_to_gem_pad(theParity, part));
   int keyStrip = clct.getKeyStrip();
   //ME1A part, convert halfstrip from 128-223 to 0-95
-  if (part == CSCPart::ME1A and keyStrip > CSCConstants::MAX_HALF_STRIP_ME1B) 
+  if (part == CSCPart::ME1A and keyStrip > CSCConstants::MAX_HALF_STRIP_ME1B)
       keyStrip = keyStrip -  CSCConstants::MAX_HALF_STRIP_ME1B -1;
   const int lowPad(mymap[keyStrip].first);
   const int highPad(mymap[keyStrip].second);
@@ -466,20 +466,25 @@ S CSCGEMMotherboard::bestMatchingPad(const CSCALCTDigi& alct1,
 }
 
 template <class T>
-void CSCGEMMotherboard::correlateLCTsGEM(T& bestLCT,
-                                         T& secondLCT,
+void CSCGEMMotherboard::correlateLCTsGEM(const T& bLCT,
+                                         const T& sLCT,
                                          const GEMCoPadDigiIds& coPads,
                                          CSCCorrelatedLCTDigi& lct1,
                                          CSCCorrelatedLCTDigi& lct2) const
 {
+  T bestLCT = bLCT;
+  T secondLCT = sLCT;
+
   // Check which LCTs are valid
-  bool bestValid     = bestLCT.isValid();
-  bool secondValid   = secondLCT.isValid();
+  bool bestValid = bestLCT.isValid();
+  bool secondValid = secondLCT.isValid();
 
   // At this point, set both LCTs valid if they are invalid
   // Duplicate LCTs are taken into account later
-  if (bestValid and !secondValid) secondLCT = bestLCT;
-  if (!bestValid and secondValid) bestLCT   = secondLCT;
+  if (bestValid and !secondValid)
+    secondLCT = bestLCT;
+  if (!bestValid and secondValid)
+    bestLCT = secondLCT;
 
   // get best matching copad1
   const GEMCoPadDigi& bestCoPad = bestMatchingPad<GEMCoPadDigi>(bestLCT, coPads);
