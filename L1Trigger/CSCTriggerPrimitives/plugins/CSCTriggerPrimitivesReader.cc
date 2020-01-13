@@ -345,8 +345,8 @@ CSCTriggerPrimitivesReader::CSCTriggerPrimitivesReader(const edm::ParameterSet& 
   lcts_tmb_d_token_ = consumes<CSCCorrelatedLCTDigiCollection>(edm::InputTag(lctProducerData_, "MuonCSCCorrelatedLCTDigi"));
   lcts_mpc_d_token_ = consumes<CSCCorrelatedLCTDigiCollection>(edm::InputTag(mpclctProducerData_));
 
-  alcts_e_token_    = consumes<CSCALCTDigiCollection>(edm::InputTag(lctProducerEmul_, "ALL","CSCTPEmulator"));
-  clcts_e_token_    = consumes<CSCCLCTDigiCollection>(edm::InputTag(lctProducerEmul_, "ALL","CSCTPEmulator"));
+  alcts_e_token_    = consumes<CSCALCTDigiCollection>(edm::InputTag(lctProducerEmul_, "All","CSCTPEmulator"));
+  clcts_e_token_    = consumes<CSCCLCTDigiCollection>(edm::InputTag(lctProducerEmul_, "All","CSCTPEmulator"));
   // alcts_e_token_    = consumes<CSCALCTDigiCollection>(edm::InputTag(lctProducerEmul_, "CSCTPEmulator", "All"));
   // clcts_e_token_    = consumes<CSCCLCTDigiCollection>(edm::InputTag(lctProducerEmul_, "CSCTPEmulator", "All"));
   pretrigs_e_token_ = consumes<CSCCLCTPreTriggerDigiCollection>(edm::InputTag(lctProducerEmul_));
@@ -396,6 +396,11 @@ void CSCTriggerPrimitivesReader::resetALCTreeBranches()
 {
   nWireDigis = 0;
   nALCTs     = 0;
+  nStripDigis = 0;
+  nCLCTs     = 0;
+  for (int i = 0; i < 540; i++) nCLCTsPerChamber[i] = 0;
+
+
   for (int i = 0; i < MAXLLPS; i++)
   {
     llp_decay_x[i] = -666666.;
@@ -407,8 +412,11 @@ void CSCTriggerPrimitivesReader::resetALCTreeBranches()
 
 void CSCTriggerPrimitivesReader::enableALCTreeBranches()
 {
+  modified_alct->Branch("nStripDigis", &nStripDigis, "nStripDigis/I");
   modified_alct->Branch("nWireDigis", &nWireDigis, "nWireDigis/I");
   modified_alct->Branch("nALCTs", &nALCTs, "nALCTs/I");
+  modified_alct->Branch("nCLCTs", &nCLCTs, "nCLCTs/I");
+  modified_alct->Branch("nCLCTsPerChamber", nCLCTsPerChamber, "nCLCTsPerChamber[540]/I");
   modified_alct->Branch("llp_decay_x", llp_decay_x, "llp_decay_x[2]/F");
   modified_alct->Branch("llp_decay_y", llp_decay_y, "llp_decay_y[2]/F");
   modified_alct->Branch("llp_decay_z", llp_decay_z, "llp_decay_z[2]/F");
@@ -1266,6 +1274,7 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
   if (!bookedCLCTHistos) bookCLCTHistos();
 
   int nValidCLCTs = 0;
+ 
   for (auto detUnitIt = clcts->begin(); detUnitIt != clcts->end(); detUnitIt++) {
     int nValidCLCTsPerCSC = 0;
     const CSCDetId& id = (*detUnitIt).first;
@@ -1318,9 +1327,80 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
                      << " (sector " << id.triggerSector()
 	  << " trig id. " << id.triggerCscId() << ")" << "\n";
 
-      }
+	//*********************************************
+	//figure out the chamber index
+	int CSCChamberIndex = -1;
+	if ( (id.endcap() == 1) ) {
+	  //start counting from "+" end
+
+	  //ME+1/1 : 0-35, +1/2: 36-71, +1/3: 72-107
+	  if ( id.station() == 1) {
+	    CSCChamberIndex = (id.ring()-1) * 36 + (id.chamber() - 1);
+	  } else if ( id.station() == 2) {
+	    if (id.ring() == 1) {
+	      CSCChamberIndex = 108 + (id.chamber() - 1);
+	    } else if (id.ring() == 2) {
+	      CSCChamberIndex = 108 + 18 + (id.chamber() - 1);
+	    } else {
+	      CSCChamberIndex = -1;
+	    }
+	  } else if ( id.station() == 3) {
+	    if (id.ring() == 1) {
+	      CSCChamberIndex = 162 + (id.chamber() - 1);
+	    } else if (id.ring() == 2) {
+	      CSCChamberIndex = 162 + 18 + (id.chamber() - 1);
+	    } else {
+	      CSCChamberIndex = -1;
+	    }
+	  } else if ( id.station() == 4) {
+	    if (id.ring() == 1) {
+	      CSCChamberIndex = 216 + (id.chamber() - 1);
+	    } else if (id.ring() == 2) {
+	      CSCChamberIndex = 216 + 18 + (id.chamber() - 1);
+	    } else {
+	      CSCChamberIndex = -1;
+	    }
+	  }
+	} else {
+	  //ME-1/1 : Start Counting at 270
+	  if ( id.station() == 1) {
+	    CSCChamberIndex = 270 + (id.ring()-1) * 36 + (id.chamber() - 1);
+	  } else if ( id.station() == 2) {
+	    if (id.ring() == 1) {
+	      CSCChamberIndex = 270 + 108 + (id.chamber() - 1);
+	    } else if (id.ring() == 2) {
+	      CSCChamberIndex = 270 + 108 + 18 + (id.chamber() - 1);
+	    } else {
+	      CSCChamberIndex = -1;
+	    }
+	  } else if ( id.station() == 3) {
+	    if (id.ring() == 1) {
+	      CSCChamberIndex = 270 + 162 + (id.chamber() - 1);
+	    } else if (id.ring() == 2) {
+	      CSCChamberIndex = 270 + 162 + 18 + (id.chamber() - 1);
+	    } else {
+	      CSCChamberIndex = -1;
+	    }
+	  } else if ( id.station() == 4) {
+	    if (id.ring() == 1) {
+	      CSCChamberIndex = 270 + 216 + (id.chamber() - 1);
+	    } else if (id.ring() == 2) {
+	      CSCChamberIndex = 270 + 216 + 18 + (id.chamber() - 1);
+	    } else {
+	      CSCChamberIndex = -1;
+	    }
+	  }
+	}
+	//end figure out chamber index
+	//*********************************************
+	if (CSCChamberIndex >= 0 && CSCChamberIndex < 540) {
+	  nCLCTsPerChamber[CSCChamberIndex]++;
+	}
+	
+      } //if clct_valid
     }
     hClctPerChamber->Fill(nValidCLCTsPerCSC);
+    
   }
   hClctPerEvent->Fill(nValidCLCTs);
   if (debug) LogTrace("CSCTriggerPrimitivesReader")
@@ -1328,7 +1408,7 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
 
   //sixie
   cout << nValidCLCTs << " valid CLCTs found in this event\n";
-
+  nCLCTs = nValidCLCTs;
 
   numCLCT += nValidCLCTs;
 }
@@ -2980,6 +3060,10 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
   LogDebug("CSCTriggerPrimitivesReader") << "LLP1: " << llp_decay_x[0] << " " << llp_decay_y[0] << " " << llp_decay_y[0] << " " << llp_in_acceptance[0] << " \n";
   LogDebug("CSCTriggerPrimitivesReader") << "LLP2: " << llp_decay_x[1] << " " << llp_decay_y[1] << " " << llp_decay_y[1] << " " << llp_in_acceptance[1] << " \n";
 
+
+  if (llp_in_acceptance[0] || llp_in_acceptance[1]) {
+    cout << "LLP Decay In Acceptance : " << ev.id().run() << ":" << ev.id().luminosityBlock() << ":" <<  ev.id().event() << "\n";
+  }
 
 
 

@@ -23,6 +23,7 @@
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
@@ -74,6 +75,7 @@ class CSCTriggerPrimitivesBuilder
              CSCALCTDigiCollection& oc_alct_all,
              CSCCLCTDigiCollection& oc_clct,
              CSCCLCTDigiCollection& oc_clct_all,
+             CSCALCTPreTriggerDigiCollection& oc_alctpretrigger,
              CSCCLCTPreTriggerDigiCollection& oc_clctpretrigger,
              CSCCLCTPreTriggerCollection & oc_pretrig,
              CSCCorrelatedLCTDigiCollection& oc_lct,
