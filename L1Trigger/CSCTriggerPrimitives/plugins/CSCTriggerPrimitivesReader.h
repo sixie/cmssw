@@ -474,6 +474,9 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   //modified ALCT Tree variables
   int nWireDigis;
   int nALCTs;
+  int nStripDigis;
+  int nCLCTs;
+  int nCLCTsPerChamber[540];
   float llp_decay_x[MAXLLPS];
   float llp_decay_y[MAXLLPS];
   float llp_decay_z[MAXLLPS];
