@@ -18,14 +18,19 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     checkBadChambers = cms.bool(True),
 
     # Write out all CLCTs
-    writeOutAllCLCTs = cms.bool(True),  
+    writeOutAllCLCTs = cms.bool(True),
+
+    # Write out all ALCTs
     writeOutAllALCTs = cms.bool(True),
+
+    # Write out pre-triggers
+    savePreTriggers = cms.bool(False),
 
     # Parameters common for all boards
     commonParam = cms.PSet(
         # Master flag for SLHC studies
         isSLHC = cms.bool(False),
-        
+
         # Debug
         verbosity = cms.int32(0),
 

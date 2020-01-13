@@ -26,6 +26,7 @@
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 
@@ -49,6 +50,12 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   writeOutAllCLCTs_ = conf.getParameter<bool>("writeOutAllCLCTs");
   writeOutAllALCTs_ = conf.getParameter<bool>("writeOutAllALCTs");
 
+  writeOutAllCLCTs_ = conf.getParameter<bool>("writeOutAllCLCTs");
+
+  writeOutAllALCTs_ = conf.getParameter<bool>("writeOutAllALCTs");
+
+  savePreTriggers_ = conf.getParameter<bool>("savePreTriggers");
+
   // check whether you need to run the integrated local triggers
   const edm::ParameterSet commonParam(conf.getParameter<edm::ParameterSet>("commonParam"));
   runME11ILT_ = commonParam.existsAs<bool>("runME11ILT")?commonParam.getParameter<bool>("runME11ILT"):false;
@@ -64,13 +71,14 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   produces<CSCCLCTDigiCollection>();
   // for experimental simulation studies
   if (writeOutAllCLCTs_) {
-    produces<CSCCLCTDigiCollection>("ALL");
+    produces<CSCCLCTDigiCollection>("All");
   }
   if (writeOutAllALCTs_) {
-    produces<CSCALCTDigiCollection>("ALL");
+    produces<CSCALCTDigiCollection>("All");
   }
   produces<CSCCLCTPreTriggerDigiCollection>();
   produces<CSCCLCTPreTriggerCollection>();
+  produces<CSCALCTPreTriggerDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
   if (runME11ILT_ or runME21ILT_)
@@ -148,6 +156,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   std::unique_ptr<CSCCLCTDigiCollection> oc_clct(new CSCCLCTDigiCollection);
   std::unique_ptr<CSCCLCTDigiCollection> oc_clct_all(new CSCCLCTDigiCollection);
   std::unique_ptr<CSCCLCTPreTriggerDigiCollection> oc_clctpretrigger(new CSCCLCTPreTriggerDigiCollection);
+  std::unique_ptr<CSCALCTPreTriggerDigiCollection> oc_alctpretrigger(new CSCALCTPreTriggerDigiCollection);
   std::unique_ptr<CSCCLCTPreTriggerCollection> oc_pretrig(new CSCCLCTPreTriggerCollection);
   std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);
   std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
@@ -172,11 +181,20 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
     //std::cout << "passing!!!" << std::endl;
     const CSCBadChambers* temp = checkBadChambers_ ? pBadChambers.product() : new CSCBadChambers;
     streamCache(iID)->build(temp,
-                            wireDigis.product(), compDigis.product(),
-                            gemPads, gemPadClusters,
-                            *oc_alct, *oc_alct_all, *oc_clct,*oc_clct_all,
-                            *oc_clctpretrigger, *oc_pretrig,
-                            *oc_lct, *oc_sorted_lct, *oc_gemcopad);
+                            wireDigis.product(),
+                            compDigis.product(),
+                            gemPads,
+                            gemPadClusters,
+                            *oc_alct,
+                            *oc_alct_all,
+                            *oc_clct,
+                            *oc_clct_all,
+                            *oc_alctpretrigger,
+                            *oc_clctpretrigger,
+                            *oc_pretrig,
+                            *oc_lct,
+                            *oc_sorted_lct,
+                            *oc_gemcopad);
     if (!checkBadChambers_)
       delete temp;
   }
@@ -184,13 +202,16 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   // Put collections in event.
   ev.put(std::move(oc_alct));
   if (writeOutAllALCTs_){
-    ev.put(std::move(oc_alct_all), "ALL");
+    ev.put(std::move(oc_alct_all), "All");
   }
   ev.put(std::move(oc_clct));
   if (writeOutAllCLCTs_){
-    ev.put(std::move(oc_clct_all), "ALL");
+    ev.put(std::move(oc_clct_all), "All");
   }
-  ev.put(std::move(oc_clctpretrigger));
+  if (savePreTriggers_) {
+    ev.put(std::move(oc_alctpretrigger));
+    ev.put(std::move(oc_clctpretrigger));
+  }
   ev.put(std::move(oc_pretrig));
   ev.put(std::move(oc_lct));
   ev.put(std::move(oc_sorted_lct),"MPCSORTED");
