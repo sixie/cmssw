@@ -345,8 +345,8 @@ CSCTriggerPrimitivesReader::CSCTriggerPrimitivesReader(const edm::ParameterSet& 
   lcts_tmb_d_token_ = consumes<CSCCorrelatedLCTDigiCollection>(edm::InputTag(lctProducerData_, "MuonCSCCorrelatedLCTDigi"));
   lcts_mpc_d_token_ = consumes<CSCCorrelatedLCTDigiCollection>(edm::InputTag(mpclctProducerData_));
 
-  alcts_e_token_    = consumes<CSCALCTDigiCollection>(edm::InputTag(lctProducerEmul_, "ALL","CSCTPEmulator"));
-  clcts_e_token_    = consumes<CSCCLCTDigiCollection>(edm::InputTag(lctProducerEmul_, "ALL","CSCTPEmulator"));
+  alcts_e_token_    = consumes<CSCALCTDigiCollection>(edm::InputTag(lctProducerEmul_, "All","CSCTPEmulator"));
+  clcts_e_token_    = consumes<CSCCLCTDigiCollection>(edm::InputTag(lctProducerEmul_, "All","CSCTPEmulator"));
   // alcts_e_token_    = consumes<CSCALCTDigiCollection>(edm::InputTag(lctProducerEmul_, "CSCTPEmulator", "All"));
   // clcts_e_token_    = consumes<CSCCLCTDigiCollection>(edm::InputTag(lctProducerEmul_, "CSCTPEmulator", "All"));
   pretrigs_e_token_ = consumes<CSCCLCTPreTriggerDigiCollection>(edm::InputTag(lctProducerEmul_));
