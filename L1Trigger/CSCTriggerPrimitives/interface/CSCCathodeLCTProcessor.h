@@ -64,9 +64,9 @@ class CSCCathodeLCTProcessor : public CSCBaseboard
   void run(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 
   /** Returns vector of CLCTs in the read-out time window, if any. */
-  std::vector<CSCCLCTDigi> readoutCLCTs() const;
-  std::vector<CSCCLCTDigi> readoutCLCTsME1a() const;
-  std::vector<CSCCLCTDigi> readoutCLCTsME1b() const;
+  std::vector<CSCCLCTDigi> readoutCLCTs(int nMaxCLCTs = 2) const;
+  std::vector<CSCCLCTDigi> readoutCLCTsME1a(int nMaxCLCTs = 2) const;
+  std::vector<CSCCLCTDigi> readoutCLCTsME1b(int nMaxCLCTs = 2) const;
 
   /** Returns vector of all found CLCTs, if any. */
   std::vector<CSCCLCTDigi> getCLCTs() const;
