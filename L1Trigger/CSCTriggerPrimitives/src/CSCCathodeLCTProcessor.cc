@@ -1180,7 +1180,7 @@ void CSCCathodeLCTProcessor::dumpDigis(const std::vector<int> strip[CSCConstants
 
 // Returns vector of read-out CLCTs, if any.  Starts with the vector
 // of all found CLCTs and selects the ones in the read-out time window.
-std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() const
+std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs(int nMaxCLCTs) const
 {
   std::vector<CSCCLCTDigi> tmpV;
 
@@ -1224,6 +1224,9 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() const
   for (const auto& p : all_lcts) {
     if (!p.isValid()) continue;
 
+    //ignore the CLCTs with an index larger than nMaxCLCTs
+    if (p.getTrknmb() > nMaxCLCTs) continue;
+
     const int bx = p.getBX();
     // Skip CLCTs found too early relative to L1Accept.
     if (bx <= early_tbins) {
@@ -1259,12 +1262,12 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() const
 
 // Returns vector of read-out CLCTs, if any.  Starts with the vector
 // of all found CLCTs and selects the ones in the read-out time window.
-std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTsME1a() const
+std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTsME1a(int nMaxCLCTs) const
 {
   std::vector<CSCCLCTDigi> tmpV;
   if (not (theStation == 1 and  (theRing == 1 or theRing == 4)) )
     return tmpV;
-  const std::vector<CSCCLCTDigi>& allCLCTs = readoutCLCTs();
+  const std::vector<CSCCLCTDigi>& allCLCTs = readoutCLCTs(nMaxCLCTs);
   for (const auto& clct : allCLCTs)
     if (clct.getCFEB() >= 4 )
       tmpV.push_back(clct);
@@ -1274,12 +1277,12 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTsME1a() const
 
 // Returns vector of read-out CLCTs, if any.  Starts with the vector
 // of all found CLCTs and selects the ones in the read-out time window.
-std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTsME1b() const
+std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTsME1b(int nMaxCLCTs) const
 {
   std::vector<CSCCLCTDigi> tmpV;
   if (not (theStation == 1 and  (theRing == 1 or theRing == 4)) )
     return tmpV;
-  const std::vector<CSCCLCTDigi>& allCLCTs = readoutCLCTs();
+  const std::vector<CSCCLCTDigi>& allCLCTs = readoutCLCTs(nMaxCLCTs);
   for (const auto& clct : allCLCTs)
     if (clct.getCFEB() < 4 )
       tmpV.push_back(clct);
