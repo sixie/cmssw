@@ -347,8 +347,8 @@ CSCTriggerPrimitivesReader::CSCTriggerPrimitivesReader(const edm::ParameterSet& 
 
   alcts_e_token_    = consumes<CSCALCTDigiCollection>(edm::InputTag(lctProducerEmul_, "All","CSCTPEmulator"));
   clcts_e_token_    = consumes<CSCCLCTDigiCollection>(edm::InputTag(lctProducerEmul_, "All","CSCTPEmulator"));
-  // alcts_e_token_    = consumes<CSCALCTDigiCollection>(edm::InputTag(lctProducerEmul_, "CSCTPEmulator", "All"));
-  // clcts_e_token_    = consumes<CSCCLCTDigiCollection>(edm::InputTag(lctProducerEmul_, "CSCTPEmulator", "All"));
+  //alcts_e_token_    = consumes<CSCALCTDigiCollection>(edm::InputTag(lctProducerEmul_, "","CSCTPEmulator"));
+  //clcts_e_token_    = consumes<CSCCLCTDigiCollection>(edm::InputTag(lctProducerEmul_, "","CSCTPEmulator"));
   pretrigs_e_token_ = consumes<CSCCLCTPreTriggerDigiCollection>(edm::InputTag(lctProducerEmul_));
   lcts_tmb_e_token_ = consumes<CSCCorrelatedLCTDigiCollection>(edm::InputTag(lctProducerEmul_));
   lcts_mpc_e_token_ = consumes<CSCCorrelatedLCTDigiCollection>(edm::InputTag(lctProducerEmul_, "MPCSORTED"));
@@ -398,7 +398,9 @@ void CSCTriggerPrimitivesReader::resetALCTreeBranches()
   nALCTs     = 0;
   nStripDigis = 0;
   nCLCTs     = 0;
-  for (int i = 0; i < 540; i++) nCLCTsPerChamber[i] = 0;
+  for (int i = 0; i < 540; i++) 
+    for (int j = 0 ; j < 10; j++) 
+      nCLCTsPerChamber[i][j] = 0;
 
 
   for (int i = 0; i < MAXLLPS; i++)
@@ -416,7 +418,7 @@ void CSCTriggerPrimitivesReader::enableALCTreeBranches()
   modified_alct->Branch("nWireDigis", &nWireDigis, "nWireDigis/I");
   modified_alct->Branch("nALCTs", &nALCTs, "nALCTs/I");
   modified_alct->Branch("nCLCTs", &nCLCTs, "nCLCTs/I");
-  modified_alct->Branch("nCLCTsPerChamber", nCLCTsPerChamber, "nCLCTsPerChamber[540]/I");
+  modified_alct->Branch("nCLCTsPerChamber", &nCLCTsPerChamber, "nCLCTsPerChamber[540][10]/I");
   modified_alct->Branch("llp_decay_x", llp_decay_x, "llp_decay_x[2]/F");
   modified_alct->Branch("llp_decay_y", llp_decay_y, "llp_decay_y[2]/F");
   modified_alct->Branch("llp_decay_z", llp_decay_z, "llp_decay_z[2]/F");
@@ -449,7 +451,7 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
     << "\n\n\n** CSCTriggerPrimitivesReader: processing run #"
     << ev.id().run() << " event #" << ev.id().event()
     << "; events so far: " << eventsAnalyzed << " **";
-
+ 
   // Find the geometry for this event & cache it.  Needed in LCTAnalyzer
   // modules.
   edm::ESHandle<CSCGeometry> cscGeom;
@@ -533,6 +535,9 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
       edm::LogWarning("L1CSCTPEmulatorWrongInput")
         << "+++ Warning: Collection of emulated ALCTs"
         << " requested, but not found in the event... Skipping the rest +++\n";
+      cout
+        << "+++ Warning: Collection of emulated ALCTs"
+        << " requested, but not found in the event... Skipping the rest +++\n";
       return;
     }
     if (!clcts_emul.isValid()) {
@@ -564,6 +569,7 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
     fillLCTTMBHistos(lcts_tmb_data.product());
   }
   else if (emulLctsIn_) {
+    cout << "[sixie] Emulated CLCTs\n";
     fillALCTHistos(alcts_emul.product());
     fillCLCTHistos(clcts_emul.product());
     fillLCTTMBHistos(lcts_tmb_emul.product());
@@ -1328,6 +1334,9 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
 	  << " trig id. " << id.triggerCscId() << ")" << "\n";
 
 	//*********************************************
+
+	int clct_bx = (*digiIt).getBX();
+
 	//figure out the chamber index
 	int CSCChamberIndex = -1;
 	if ( (id.endcap() == 1) ) {
@@ -1394,7 +1403,8 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
 	//end figure out chamber index
 	//*********************************************
 	if (CSCChamberIndex >= 0 && CSCChamberIndex < 540) {
-	  nCLCTsPerChamber[CSCChamberIndex]++;
+	  nCLCTsPerChamber[CSCChamberIndex][clct_bx]++;
+	  cout << "[sixie]: BX = " << clct_bx << "\n";
 	}
 	
       } //if clct_valid
