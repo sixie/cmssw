@@ -50,10 +50,6 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   writeOutAllCLCTs_ = conf.getParameter<bool>("writeOutAllCLCTs");
   writeOutAllALCTs_ = conf.getParameter<bool>("writeOutAllALCTs");
 
-  writeOutAllCLCTs_ = conf.getParameter<bool>("writeOutAllCLCTs");
-
-  writeOutAllALCTs_ = conf.getParameter<bool>("writeOutAllALCTs");
-
   savePreTriggers_ = conf.getParameter<bool>("savePreTriggers");
 
   // check whether you need to run the integrated local triggers
