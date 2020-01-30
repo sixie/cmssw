@@ -394,6 +394,7 @@ CSCTriggerPrimitivesReader::~CSCTriggerPrimitivesReader() {
 
 void CSCTriggerPrimitivesReader::resetALCTreeBranches()
 {
+  event = 0;
   nWireDigis = 0;
   nALCTs     = 0;
   nStripDigis = 0;
@@ -414,6 +415,7 @@ void CSCTriggerPrimitivesReader::resetALCTreeBranches()
 
 void CSCTriggerPrimitivesReader::enableALCTreeBranches()
 {
+  modified_alct->Branch("event", &event, "event/I");
   modified_alct->Branch("nStripDigis", &nStripDigis, "nStripDigis/I");
   modified_alct->Branch("nWireDigis", &nWireDigis, "nWireDigis/I");
   modified_alct->Branch("nALCTs", &nALCTs, "nALCTs/I");
@@ -524,6 +526,7 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
     //    ev.getByLabel(lctProducerEmul_,              lcts_tmb_emul);
     //    ev.getByLabel(lctProducerEmul_, "MPCSORTED", lcts_mpc_emul);
     resetALCTreeBranches();
+    event = ev.id().event();
     HotWires(ev);
     ev.getByToken(alcts_e_token_, alcts_emul);
     ev.getByToken(clcts_e_token_, clcts_emul);

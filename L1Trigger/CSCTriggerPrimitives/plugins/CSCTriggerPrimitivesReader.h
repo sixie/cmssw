@@ -472,6 +472,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
 
 
   //modified ALCT Tree variables
+  int event;
   int nWireDigis;
   int nALCTs;
   int nStripDigis;

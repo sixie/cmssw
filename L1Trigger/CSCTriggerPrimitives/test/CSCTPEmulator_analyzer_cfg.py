@@ -14,12 +14,15 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
      fileNames = cms.untracked.vstring(
-         #'file:/uscms/home/dildick/nobackup/work/LLPStudiesWithSergoEtAL/CMSSW_10_6_4/src/step2.root'
-         'file:/afs/cern.ch/work/c/cpena/public/NikTrigger/step2_file1_to_5.root',
-         'file:/afs/cern.ch/work/c/cpena/public/NikTrigger/step2_file6_to_10.root',
-         'file:/afs/cern.ch/work/c/cpena/public/NikTrigger/step2_file11_to_15.root',
-         'file:/afs/cern.ch/work/c/cpena/public/NikTrigger/step2_file16_to_20.root'
+         ##'file:/uscms/home/dildick/nobackup/work/LLPStudiesWithSergoEtAL/CMSSW_10_6_4/src/step2.root'
+         #'file:/afs/cern.ch/work/c/cpena/public/NikTrigger/step2_file1_to_5.root',
+         #'file:/afs/cern.ch/work/c/cpena/public/NikTrigger/step2_file6_to_10.root',
+         #'file:/afs/cern.ch/work/c/cpena/public/NikTrigger/step2_file11_to_15.root',
+         #'file:/afs/cern.ch/work/c/cpena/public/NikTrigger/step2_file16_to_20.root'
          #'file:/afs/cern.ch/work/c/cpena/public/NikTrigger/CMSSW_10_6_4/src/../../Data/data_v2/HIG-RunIIFall18wmLHEGS-01282_FEVTDEBUG_LLP_WH_15.root'
+
+         '/store/mc/PhaseIITDRSpring19DR/Nu_E10-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v3/70000/EDE4B502-F1D1-2446-ACED-49A370F253E1.root'
+
      )
 )
 
